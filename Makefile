@@ -30,7 +30,7 @@ csma: $(CSMAEOBJECTS)
 #RM is a built-in variable that defaults to "rm -f".
 clean :
 #	$(RM) obj/*.o server client talker listener
-	$(RM) obj/*.o lsr dvr
+	$(RM) obj/*.o csma
 
 #$<: the first dependency in the list; here, src/%.c. (Of course, we could also have used $^).
 #The % sign means "match one or more characters". You specify it in the target, and when a file

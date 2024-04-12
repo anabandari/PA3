@@ -30,7 +30,7 @@ typedef struct{
 
 typedef struct{
     int N, L, M; 
-    unsigned int total_time, current_time;
+    int total_time, current_time;
     vector<node_info> node;
     vector<int> R; // should we use a set or a vector...?
 } values;
@@ -61,16 +61,26 @@ void system_inputs(string filename){
             int value_N;
             input >> value_N; // Read the value of N
             value.N = value_N; // Store it in the values struct
+            printf("value of n %d\n", value.N);
         }
         else if(token == "L"){
             int value_L;
             input >> value_L; // Read the value of N
             value.L = value_L; // Store it in the values struct
+            printf("value of l %d\n", value.L);
         }
         else if(token == "M"){
             int value_M;
             input >> value_M; // Read the value of N
-            value.L = value_M; // Store it in the values struct
+            value.M = value_M; // Store it in the values struct
+            printf("value of m %d\n", value.M);
+        }
+        else if(token == "T"){
+            printf("hello world\n");
+            int value_T;
+            input >> value_T; // Read the value of N
+            value.total_time = value_T; // Store it in the values struct
+            printf("total time %d\n", value.total_time);
         }
         // Random Seed Value
         else if (token == "R") {
@@ -78,11 +88,7 @@ void system_inputs(string filename){
             while (input >> value_R) {
                 value.R.push_back(value_R);
             }
-        }
-        else if(token == "T"){
-            int value_T;
-            input >> value_T; // Read the value of N
-            value.total_time = value_T; // Store it in the values struct
+            printf("size of whatevaa %zu\n", value.R.size());
         }
     }
 
@@ -90,12 +96,14 @@ void system_inputs(string filename){
 }
 
 void instantialize_nodevec(){
-    for(int i; i < value.N; i++){
+    for(int i = 0; i < value.N; i++){
         node_info node;
-        node.nodeID = i; 
+        printf("hello ready! \n");
+        node.nodeID = i;
         node.r_status = 0; 
         node.backoff = backoff(node.nodeID, 0, value.R[node.r_status]);
         value.node.push_back(node);
+        printf("%d\n", value.node[i].backoff);
     }
 }
 
@@ -114,11 +122,11 @@ void instantialize_nodevec(){
 
 int csma_calc(){
     vector<int> ready;
-    int transmit_no_collide; 
+    int transmit_no_collide = 0; 
 
     while(value.current_time != value.total_time){
         // Adding all nodes that have a backoff value of 0 to a vector
-        for(int i; i < value.N; i++){
+        for(int i = 0; i < value.N; i++){
             if(value.node[i].backoff == 0){
                 ready.push_back(i); // would a set be better here????
             }
@@ -148,7 +156,7 @@ int csma_calc(){
 
         if(ready.size() == 0){
             // clock ticks once more and all backoffs are decremented
-            for(int i; i < value.N; i++){
+            for(int i = 0; i < value.N; i++){
                 value.node[i].backoff--;
                 value.current_time++; 
             }
@@ -173,7 +181,7 @@ int main(int argc, char** argv){
     instantialize_nodevec();
     num_successes = csma_calc();
 
-    calculation = num_successes/value.total_time;
+    calculation = ((double)num_successes)/((double)value.total_time);
 
     // Write the output of the simulator to a file called output.txt
     ofstream outfile("output.txt");
