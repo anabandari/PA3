@@ -60,19 +60,15 @@ void system_inputs(string filename){
         long val;
         if (*str == 'N'){
             sscanf(str + 1, "%d", &value.N);
-            printf("N val: %d", value.N);
         }
         else if (*str == 'L'){
             sscanf(str + 1, "%d", &value.L);
-            printf("L val: %d", value.L);
         } 
         else if (*str == 'M'){
             sscanf(str + 1, "%d", &value.M);
-            printf("M val: %d", value.M);
         }
         else if (*str == 'T'){
             sscanf(str + 1, "%u", &value.total_time);
-            printf("time val: %u", value.total_time);
         }
         else if (*str == 'R') {
             val = strtol(str + 1, &str, 10);
@@ -114,14 +110,14 @@ int csma_calc(){
     vector<int> ready;
     int transmit_no_collide = 0; 
 
-    while(value.current_time != value.total_time){
+    while(value.current_time < value.total_time){
         // Adding all nodes that have a backoff value of 0 to a vector
         for(int i = 0; i < value.N; i++){
             if(value.node[i].backoff == 0){
                 ready.push_back(i); // would a set be better here????
             }
         }
-
+        
         if(ready.size() > 1){
             // collison occurs increase the R value!!
             value.current_time++; 
@@ -137,7 +133,7 @@ int csma_calc(){
             // keep track of these number of slots!
             // increase the total time by the link utililization or whateva
             // small bug for when the time exceeds the total simulation time!!!!!!!!!!
-            transmit_no_collide++;
+            transmit_no_collide+= value.L;
             value.current_time = value.current_time + value.L;
             value.node[ready[0]].r_status = 0;
             value.node[ready[0]].backoff = backoff(ready[0], value.current_time, value.R[0]);
