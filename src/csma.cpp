@@ -126,6 +126,12 @@ int csma_calc(){
 
         if(ready.size() > 1){
             // collison occurs increase the R value!!
+            value.current_time++; 
+            while(ready.size() != 0){
+                value.node[ready[ready.size()-1]].r_status++;
+                value.node[ready[ready.size()-1]].backoff = backoff(ready[ready.size()-1], value.current_time, value.R[value.node[ready[ready.size()-1]].r_status]);
+                ready.pop_back();
+            }
         }
 
         if(ready.size() == 1){
