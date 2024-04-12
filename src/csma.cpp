@@ -25,13 +25,20 @@
 using namespace std;
 
 typedef struct{
- int N, L, M, R; 
- unsigned int total_time, current_time; 
+    int number, r_status, backoff;
+} node_info; 
 
+typedef struct{
+    int N, L, M, T; 
+    unsigned int total_time, current_time;
+    vector<node_info> node;
+    vector<int> R; // should we use a set or a vector...?
 } values;
 
+static values value;
 
-// File input
+
+// Implement file input 
 void system_input(string filename){
     ifstream input;
 	input.open(filename); 
@@ -41,9 +48,11 @@ void system_input(string filename){
     }
 }
 
-// write a function to calculate a backoff??
+// write a function to calculate a backoff?? 
+    // its just the modulus but sureee
 int backoff(int nodeID, int ticks, int R){
-    backoff = mod(nodeID + ticks, R);
+    int backoff; 
+    backoff = (nodeID+ticks)% R;  //backoff = mod(nodeID + ticks, R);
     return(backoff);
 }
 
@@ -60,8 +69,30 @@ int backoff(int nodeID, int ticks, int R){
 
 
 */
-void csma_calc(){
-    
+int csma_calc(){
+    vector<int> ready;
+    for(int i; i < value.N; i++){
+        if(value.node[i].backoff == 0){
+            ready.push_back(i); // would a set be better here????
+        }
+    }
+
+    if(ready.size() > 1){
+        // collison occurs increase the R value!!
+    }
+
+    if(ready.size() == 1){
+        // no collison change the backoff for this node onlyyyy
+        // keep track of these number of slots!
+        // increase the total time by the link utililization or whateva
+
+    }
+
+    if(ready.size() == 0){
+        // clock ticks once more and all backoffs are decremented
+    }
+
+    return(transmit_no_collide);
 }
 
 
