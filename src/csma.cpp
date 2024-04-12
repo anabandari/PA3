@@ -30,9 +30,9 @@ typedef struct{
 
 typedef struct{
     int N, L, M; 
-    int total_time, current_time;
+    unsigned int total_time, current_time;
     vector<node_info> node;
-    vector<int> R; // should we use a set or a vector...?
+    vector<long> R; // should we use a set or a vector...?
 } values;
 
 static values value;
@@ -55,42 +55,34 @@ void system_inputs(string filename){
     }
 
     string token;
-    while (input >> token) {
-        // Number of Nodes
-        if(token == "N"){
-            int value_N;
-            input >> value_N; // Read the value of N
-            value.N = value_N; // Store it in the values struct
-            printf("value of n %d\n", value.N);
+    while (getline(input, token)) {
+        char* str = const_cast<char *>(token.c_str());
+        long val;
+        if (*str == 'N'){
+            sscanf(str + 1, "%d", &value.N);
+            printf("N val: %d", value.N);
         }
-        else if(token == "L"){
-            int value_L;
-            input >> value_L; // Read the value of N
-            value.L = value_L; // Store it in the values struct
-            printf("value of l %d\n", value.L);
+        else if (*str == 'L'){
+            sscanf(str + 1, "%d", &value.L);
+            printf("L val: %d", value.L);
+        } 
+        else if (*str == 'M'){
+            sscanf(str + 1, "%d", &value.M);
+            printf("M val: %d", value.M);
         }
-        else if(token == "M"){
-            int value_M;
-            input >> value_M; // Read the value of N
-            value.M = value_M; // Store it in the values struct
-            printf("value of m %d\n", value.M);
+        else if (*str == 'T'){
+            sscanf(str + 1, "%u", &value.total_time);
+            printf("time val: %u", value.total_time);
         }
-        else if(token == "T"){
-            printf("hello world\n");
-            int value_T;
-            input >> value_T; // Read the value of N
-            value.total_time = value_T; // Store it in the values struct
-            printf("total time %d\n", value.total_time);
-        }
-        // Random Seed Value
-        else if (token == "R") {
-            int value_R;
-            while (input >> value_R) {
-                value.R.push_back(value_R);
+        else if (*str == 'R') {
+            val = strtol(str + 1, &str, 10);
+            while (val){
+                value.R.push_back(val); 
+                val = strtol(str, &str, 10);
             }
-            printf("size of whatevaa %zu\n", value.R.size());
         }
     }
+
 
     input.close();
 }
@@ -98,12 +90,10 @@ void system_inputs(string filename){
 void instantialize_nodevec(){
     for(int i = 0; i < value.N; i++){
         node_info node;
-        printf("hello ready! \n");
         node.nodeID = i;
         node.r_status = 0; 
         node.backoff = backoff(node.nodeID, 0, value.R[node.r_status]);
         value.node.push_back(node);
-        printf("%d\n", value.node[i].backoff);
     }
 }
 
