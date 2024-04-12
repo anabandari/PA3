@@ -166,11 +166,20 @@ int main(int argc, char** argv){
         exit(0);
     }
 
+    int num_successes;
+    double calculation;
     // Sets up all the variables we need to run our simullaaaatioooonnn!!!!
     system_inputs(argv[1]);
     instantialize_nodevec();
+    num_successes = csma_calc();
+
+    calculation = num_successes/value.total_time;
 
     // Write the output of the simulator to a file called output.txt
+    ofstream outfile("output.txt");
+    outfile << calculation;
+    outfile.close(); 
+ 
 }
 
 
