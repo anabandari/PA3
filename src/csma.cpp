@@ -25,7 +25,7 @@
 using namespace std;
 
 typedef struct{
-    int number, r_status, backoff;
+    int nodeID, r_status, backoff;
 } node_info; 
 
 typedef struct{
@@ -92,9 +92,9 @@ void system_inputs(string filename){
 void instantialize_nodevec(){
     for(int i; i < value.N; i++){
         node_info node;
-        node.number = i; 
+        node.nodeID = i; 
         node.r_status = 0; 
-        node.backoff = backoff(node.number, 0, value.R[node.r_status]);
+        node.backoff = backoff(node.nodeID, 0, value.R[node.r_status]);
         value.node.push_back(node);
     }
 }
@@ -132,17 +132,24 @@ int csma_calc(){
             // no collison change the backoff for this node onlyyyy
             // keep track of these number of slots!
             // increase the total time by the link utililization or whateva
-
+            // small bug for when the time exceeds the total simulation time!!!!!!!!!!
+            transmit_no_collide++;
+            value.current_time = value.current_time + value.L;
+            value.node[ready[0]].r_status = 0;
+            value.node[ready[0]].backoff = backoff(ready[0], value.current_time, value.R[0]);
+            ready.pop_back();
         }
 
         if(ready.size() == 0){
             // clock ticks once more and all backoffs are decremented
             for(int i; i < value.N; i++){
-                
+                value.node[i].backoff--;
+                value.current_time++; 
             }
         }
 
     }
+
     return(transmit_no_collide);
 }
 
