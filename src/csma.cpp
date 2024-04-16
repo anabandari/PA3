@@ -29,8 +29,7 @@ using namespace std;
 
 /// Create struct for node information
 typedef struct{
-    int nodeID, r_status;
-    double backoff;
+    int nodeID, r_status, backoff;
 } node_info; 
 
 /// Create struct for nodes and parameters
@@ -44,10 +43,10 @@ typedef struct{
 static values value;
 
 /// Function to calculate backoff
-double backoff(int nodeID, int ticks, int R){
+int backoff(int nodeID, int ticks, int R){
     double backoff; 
     /// Backoff is equal to modulus of nodeID + ticks and backoff window
-    backoff = fmod((double)nodeID+(double)ticks,(double)R); 
+    backoff = (nodeID+ticks)%R; 
     /// Return calculated backoff value
     return backoff;
 }
@@ -102,7 +101,7 @@ void instantialize_nodevec(){
     /// increment up to N number of nodes
     for(int i = 0; i < value.N; i++){
         node_info node;
-        /// set value of nnodeID to increment index
+        /// set value of nodeID to increment index
         node.nodeID = i;
         node.r_status = 0; 
         /// Get value of backoff from backoff function
@@ -112,62 +111,85 @@ void instantialize_nodevec(){
 }
 
 
-/*
-    Some pseudo-code:
-    if backoff == 0  
-        current time = current_clock_tick + L
-        Assign new random value 
-
-    Now is the issue of multilple nodes! 
-    if backoff_node_count != 1 
-        for each node that is 0 assign random values for each of them. Increase random nodes based on the R vector tracker. 
-
-*/
-
+/// Function to implement Carrier Sense Multiple Access algorithm
 int csma_calc(){
     vector<int> ready;
+    /// Initialize number of successful transmissions without collisions to zero
     int transmit_no_collide = 0; 
+    value.current_time = 0;
 
+    /// Repeat until we reach total time T
     while(value.current_time < value.total_time){
-        // Adding all nodes that have a backoff value of 0 to a vector
+
+        /// Adding all nodes that have a backoff value of 0 to a vector
         for(int i = 0; i < value.N; i++){
             if(value.node[i].backoff == 0){
-                ready.push_back(i); // would a set be better here????
+                ready.push_back(i); 
             }
         }
-        
-        if(ready.size() > 1){
-            // collison occurs increase the R value!!
-            value.current_time++; 
+
+        /// If there is more than one node ready to transmit
+        if(ready.size() > 1){ 
+            /// Increment current time
+            value.current_time++;          
+            /// Collison will happen. Update r_status and backoffs
             while(ready.size() != 0){
                 value.node[ready[ready.size()-1]].r_status++;
                 value.node[ready[ready.size()-1]].backoff = backoff(ready[ready.size()-1], value.current_time, value.R[value.node[ready[ready.size()-1]].r_status]);
+                printf("node: %d  ", ready.size()-1);
+                printf("backoff: %d\n", value.node[ready[ready.size()-1]].backoff);
                 ready.pop_back();
             }
+
+            
+            printf("collision\n");
         }
 
-        if(ready.size() == 1){
-            // no collison change the backoff for this node onlyyyy
-            // keep track of these number of slots!
-            // increase the total time by the link utililization or whateva
-            // small bug for when the time exceeds the total simulation time!!!!!!!!!!
-            transmit_no_collide+= value.L;
-            value.current_time = value.current_time + value.L;
+        /// If there is only one node ready to transmit
+        else if(ready.size() == 1){
+
+            /// Check if length of packet is able to be transmitted within available total time
+            if(value.current_time + value.L < value.total_time) {
+                /// Add amount of time to transmit packet
+                value.current_time += value.L;
+                /// Increment number of successful transmissions without collisions
+                transmit_no_collide += value.L;
+            }
+            /// If there is not enough time left, increment time to only to total time
+            else {       
+                /// Increment number of successful transmissions without collisions
+                transmit_no_collide += value.L - ((value.current_time + value.L) - value.total_time);
+                /// Increment time to total time
+                value.current_time = value.total_time;
+            }
+            
             value.node[ready[0]].r_status = 0;
             value.node[ready[0]].backoff = backoff(ready[0], value.current_time, value.R[0]);
+            printf("node: %d  ", ready[0]);
+            printf("backoff: %d\n", value.node[ready[0]].backoff);  
             ready.pop_back();
+            printf("transmission\n");
         }
-
-        if(ready.size() == 0){
+        
+        /// If there are no transmissions
+        else if (ready.size() == 0){
+            /// Increment current time
+            value.current_time++; 
             // clock ticks once more and all backoffs are decremented
             for(int i = 0; i < value.N; i++){
-                value.node[i].backoff--;
-                value.current_time++; 
+                value.node[i].backoff--;   
+                printf("node: %d  ", i);
+                printf("backoff: %d\n", value.node[i].backoff);            
             }
+
+            printf("normal\n");
         }
 
+        printf("time: %d\n", value.current_time);
     }
-
+    
+    /// Return number of successful transmissions without collisions
+    printf("transmit_no_collide, %d", transmit_no_collide);
     return(transmit_no_collide);
 }
 
